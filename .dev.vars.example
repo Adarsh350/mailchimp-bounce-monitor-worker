@@ -1,0 +1,4 @@
+MAILCHIMP_API_KEY=your-mailchimp-api-key
+MAILCHIMP_SERVER_PREFIX=us19
+MAILCHIMP_LIST_ID=your-mailchimp-list-id
+MAILCHIMP_WEBHOOK_SECRET=replace-with-a-random-secret

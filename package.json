@@ -1,0 +1,17 @@
+{
+  "name": "mailchimp-bounce-monitor-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cloudflare Worker that archives Mailchimp contacts for hard bounces, abuse reports, unsubscribes, and repeated soft bounces.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler publish"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "wrangler": "2.20.0"
+  },
+  "dependencies": {
+    "js-md5": "^0.8.3"
+  }
+}
