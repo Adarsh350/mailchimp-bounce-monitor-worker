@@ -140,7 +140,7 @@ curl -X POST https://your-worker.workers.dev/mailchimp/webhook/your-secret \
 ### Watch live logs
 
 ```powershell
-npx wrangler tail
+.\node_modules\.bin\wrangler.cmd tail mailchimp-bounce-monitor --format pretty
 ```
 
 ### Trigger the daily logic manually
@@ -148,7 +148,7 @@ npx wrangler tail
 Cloudflare Cron Triggers run automatically after deploy. To test the soft-bounce logic without waiting for the next run:
 
 ```powershell
-npx wrangler dev
+.\node_modules\.bin\wrangler.cmd dev
 ```
 
 Then send a scheduled event from the local dev UI or wait for the deployed cron job to run at 2:00 AM UTC every day.
@@ -163,5 +163,5 @@ Then send a scheduled event from the local dev UI or wait for the deployed cron 
 
 ## Additional Docs
 
-- [docs/OPERATIONS.md](C:/Users/JobSearch/Documents/New%20project/docs/OPERATIONS.md)
-- [docs/SECURITY.md](C:/Users/JobSearch/Documents/New%20project/docs/SECURITY.md)
+- [docs/OPERATIONS.md](docs/OPERATIONS.md)
+- [docs/SECURITY.md](docs/SECURITY.md)
