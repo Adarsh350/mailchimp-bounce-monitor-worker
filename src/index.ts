@@ -48,7 +48,7 @@ interface MailchimpEmailActivityEntry {
 }
 
 interface MailchimpEmailActivityResponse {
-  email_activity?: MailchimpEmailActivityEntry[];
+  emails?: MailchimpEmailActivityEntry[];
   total_items?: number;
 }
 
@@ -425,7 +425,7 @@ async function getCampaignEmailActivity(
       env
     );
 
-    const page = response.email_activity ?? [];
+    const page = response.emails ?? [];
     entries.push(...page);
 
     log("email_activity_page_loaded", {
