@@ -72,24 +72,25 @@ export function renderDashboardPage(): string {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
         color-scheme: dark;
-        --background: #0b1326;
-        --surface: #131b2e;
-        --surface-2: rgba(23, 31, 51, 0.82);
-        --text: #dae2fd;
-        --muted: #99a8cf;
-        --line: rgba(123, 208, 255, 0.14);
-        --primary: #7bd0ff;
-        --secondary: #4edea3;
-        --warning: #ffb95f;
-        --danger: #ff8e84;
-        --shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
-        --radius-xl: 28px;
+        --background: #1a1916;
+        --surface: #201f1b;
+        --surface-2: rgba(40, 38, 33, 0.9);
+        --surface-3: rgba(50, 47, 42, 0.92);
+        --text: #f3efe6;
+        --muted: #b6ad9c;
+        --line: rgba(214, 202, 181, 0.09);
+        --primary: #d9c7ab;
+        --secondary: #9fc5b5;
+        --warning: #d7ad72;
+        --danger: #d98d7d;
+        --shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+        --radius-xl: 24px;
         --max-width: 1380px;
       }
 
@@ -101,10 +102,9 @@ export function renderDashboardPage(): string {
         font-family: "Inter", sans-serif;
         color: var(--text);
         background:
-          radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 28%),
-          radial-gradient(circle at top right, rgba(78, 222, 163, 0.12), transparent 24%),
-          radial-gradient(circle at 50% 120%, rgba(255, 185, 95, 0.1), transparent 30%),
-          linear-gradient(180deg, #091120 0%, #0b1326 28%, #09101f 100%);
+          radial-gradient(circle at top left, rgba(217, 199, 171, 0.08), transparent 30%),
+          radial-gradient(circle at top right, rgba(159, 197, 181, 0.05), transparent 24%),
+          linear-gradient(180deg, #171613 0%, #1a1916 32%, #141311 100%);
       }
 
       .shell {
@@ -123,11 +123,11 @@ export function renderDashboardPage(): string {
       .topbar { margin-bottom: 20px; }
       .brand { display: flex; align-items: center; gap: 14px; }
       .brand-mark {
-        width: 44px;
-        height: 44px;
-        border-radius: 16px;
-        background: linear-gradient(140deg, rgba(123, 208, 255, 0.92), rgba(0, 138, 187, 0.72));
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 20px 45px rgba(56, 189, 248, 0.28);
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(58, 54, 48, 0.95), rgba(34, 32, 28, 0.96));
+        box-shadow: inset 0 0 0 1px rgba(217, 199, 171, 0.12);
         position: relative;
       }
 
@@ -135,16 +135,16 @@ export function renderDashboardPage(): string {
         content: "";
         position: absolute;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.78);
+        background: rgba(243, 239, 230, 0.82);
       }
 
       .brand-mark::before { width: 22px; height: 2px; top: 13px; left: 11px; }
       .brand-mark::after { width: 2px; height: 22px; top: 11px; left: 21px; }
       .brand-copy h1, .hero-copy h2, .panel-title h3, .section-title, .timeline-card h4, .action-card h4, .explain-card h4 {
-        font-family: "Space Grotesk", sans-serif;
+        font-family: "Newsreader", serif;
       }
 
-      .brand-copy h1 { margin: 0; font-size: 1rem; letter-spacing: 0.06em; text-transform: uppercase; }
+      .brand-copy h1 { margin: 0; font-size: 1.05rem; letter-spacing: 0.01em; font-weight: 600; }
       .brand-copy p, .hero-copy p, .section-copy, .meta-pair dt, .legend, .subtle, .footer-note, .empty-state, .topbar-actions span {
         color: var(--muted);
       }
@@ -160,22 +160,22 @@ export function renderDashboardPage(): string {
       }
 
       .ghost-button {
-        background: rgba(19, 27, 46, 0.72);
+        background: rgba(40, 38, 33, 0.9);
         color: var(--text);
-        box-shadow: inset 0 0 0 1px rgba(123, 208, 255, 0.08);
+        box-shadow: inset 0 0 0 1px rgba(217, 199, 171, 0.08);
       }
 
       .primary-button {
-        color: #04101b;
-        font-weight: 800;
-        background: linear-gradient(135deg, rgba(123, 208, 255, 0.96), rgba(0, 138, 187, 0.92));
-        box-shadow: 0 18px 40px rgba(56, 189, 248, 0.26);
+        color: #181714;
+        font-weight: 700;
+        background: linear-gradient(135deg, rgba(225, 213, 193, 0.96), rgba(201, 184, 157, 0.92));
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
       }
 
       .ghost-button:hover, .primary-button:hover { transform: translateY(-1px); }
       .hero, .section-shell {
-        border-radius: 36px;
-        background: linear-gradient(160deg, rgba(19, 27, 46, 0.95), rgba(9, 16, 31, 0.88));
+        border-radius: 28px;
+        background: linear-gradient(180deg, rgba(34, 32, 28, 0.96), rgba(25, 24, 21, 0.96));
         box-shadow: var(--shadow);
       }
 
@@ -190,8 +190,8 @@ export function renderDashboardPage(): string {
         position: absolute;
         inset: 0;
         background:
-          radial-gradient(circle at 22% 22%, rgba(123, 208, 255, 0.2), transparent 0 32%),
-          radial-gradient(circle at 82% 18%, rgba(78, 222, 163, 0.16), transparent 0 22%);
+          radial-gradient(circle at 22% 22%, rgba(217, 199, 171, 0.07), transparent 0 30%),
+          radial-gradient(circle at 82% 18%, rgba(159, 197, 181, 0.05), transparent 0 22%);
         z-index: 0;
       }
 
@@ -204,9 +204,9 @@ export function renderDashboardPage(): string {
       .hero-copy h2 {
         margin: 0;
         max-width: 12ch;
-        font-size: clamp(2.9rem, 6vw, 5.25rem);
-        line-height: 0.95;
-        letter-spacing: -0.06em;
+        font-size: clamp(2.8rem, 5vw, 4.7rem);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
       }
 
       .eyebrow, .pill, .status-chip, .run-badge, .action-badge, .legend {
@@ -214,11 +214,11 @@ export function renderDashboardPage(): string {
         align-items: center;
         gap: 10px;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.04);
       }
 
-      .eyebrow { padding: 10px 14px; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.08em; }
-      .hero-copy p { margin: 18px 0 0; max-width: 62ch; line-height: 1.7; }
+      .eyebrow { padding: 10px 14px; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.76rem; }
+      .hero-copy p { margin: 16px 0 0; max-width: 52ch; line-height: 1.65; font-size: 0.98rem; }
       .hero-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
       .pill, .status-chip, .run-badge, .action-badge, .legend { padding: 10px 14px; }
 
@@ -226,8 +226,8 @@ export function renderDashboardPage(): string {
         width: 10px;
         height: 10px;
         border-radius: 999px;
-        background: var(--primary);
-        box-shadow: 0 0 18px currentColor;
+        background: currentColor;
+        box-shadow: none;
       }
 
       .tone-primary { color: var(--primary); }
@@ -239,13 +239,13 @@ export function renderDashboardPage(): string {
       .panel, .metric-card, .timeline-card, .action-card, .explain-card {
         background: var(--surface-2);
         border-radius: var(--radius-xl);
-        backdrop-filter: blur(14px);
+        backdrop-filter: blur(10px);
         box-shadow: inset 0 0 0 1px var(--line);
       }
 
       .status-panel, .signal-band, .section-shell, .metric-card, .timeline-card, .action-card, .explain-card, .spark-card { padding: 22px; }
       .meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 18px; }
-      .meta-pair { padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, 0.03); }
+      .meta-pair { padding: 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.025); }
       .meta-pair dt { margin-bottom: 6px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; }
       .meta-pair dd { margin: 0; line-height: 1.45; }
       .signal-track { height: 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); overflow: hidden; }
@@ -253,7 +253,7 @@ export function renderDashboardPage(): string {
         height: 100%;
         width: 78%;
         border-radius: inherit;
-        background: linear-gradient(90deg, rgba(123, 208, 255, 0.2), rgba(123, 208, 255, 0.95), rgba(78, 222, 163, 0.86));
+        background: linear-gradient(90deg, rgba(217, 199, 171, 0.18), rgba(217, 199, 171, 0.85), rgba(159, 197, 181, 0.7));
       }
 
       .main-grid { display: grid; gap: 24px; margin-top: 26px; }
@@ -268,9 +268,9 @@ export function renderDashboardPage(): string {
       .metric-label { color: var(--muted); font-size: 0.9rem; }
       .metric-value {
         margin-top: 18px;
-        font-family: "Space Grotesk", sans-serif;
+        font-family: "Newsreader", serif;
         font-size: clamp(2rem, 3vw, 2.8rem);
-        letter-spacing: -0.06em;
+        letter-spacing: -0.04em;
       }
 
       .metric-detail { font-size: 0.95rem; line-height: 1.55; }
@@ -278,16 +278,16 @@ export function renderDashboardPage(): string {
       .metric-bar span { display: block; width: 58%; height: 100%; border-radius: inherit; background: currentColor; }
       .content-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 24px; }
       .section-shell { padding: 24px; }
-      .section-kicker { margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-size: 0.76rem; }
+      .section-kicker { margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); font-size: 0.72rem; }
       .section-title { margin: 0; font-size: 1.08rem; letter-spacing: -0.03em; }
-      .section-copy { max-width: 58ch; line-height: 1.65; }
+      .section-copy { max-width: 50ch; line-height: 1.6; }
       .timeline-card h4, .action-card h4, .explain-card h4 { margin: 0; font-size: 1rem; }
       .run-meta, .action-meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.85rem; color: var(--muted); }
       .run-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 14px; }
-      .mini-stat { padding: 12px; border-radius: 16px; background: rgba(255, 255, 255, 0.03); }
+      .mini-stat { padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.02); }
       .mini-stat-label { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; display: block; }
-      .mini-stat-value { margin-top: 8px; font-family: "Space Grotesk", sans-serif; font-size: 1.4rem; display: block; }
-      .spark-wrap { margin-top: 18px; padding: 18px; border-radius: 24px; background: rgba(255, 255, 255, 0.035); }
+      .mini-stat-value { margin-top: 8px; font-family: "Newsreader", serif; font-size: 1.35rem; display: block; }
+      .spark-wrap { margin-top: 18px; padding: 18px; border-radius: 20px; background: rgba(255, 255, 255, 0.025); }
       #sparkline { width: 100%; height: 120px; }
       .explain-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .explain-card p { margin: 10px 0 0; line-height: 1.7; color: var(--muted); }
@@ -306,7 +306,7 @@ export function renderDashboardPage(): string {
         width: 24px;
         height: 24px;
         border-radius: 999px;
-        background: rgba(123, 208, 255, 0.12);
+        background: rgba(217, 199, 171, 0.12);
         color: var(--primary);
         display: grid;
         place-items: center;
@@ -320,7 +320,7 @@ export function renderDashboardPage(): string {
         margin-bottom: 18px;
       }
 
-      .loading { background: rgba(123, 208, 255, 0.06); }
+      .loading { background: rgba(217, 199, 171, 0.06); }
       .error-banner { display: none; background: rgba(255, 142, 132, 0.12); color: #ffd9d4; }
       .footer-note { margin-top: 24px; text-align: center; font-size: 0.92rem; }
 
@@ -345,26 +345,26 @@ export function renderDashboardPage(): string {
           <div class="brand-mark" aria-hidden="true"></div>
           <div class="brand-copy">
             <h1>Automation Observatory</h1>
-            <p>AI automation dashboard for your Mailchimp hygiene Worker.</p>
+            <p>Mailchimp automation dashboard.</p>
           </div>
         </div>
         <div class="topbar-actions">
-          <span id="updated-at">Preparing live system snapshot…</span>
+          <span id="updated-at">Preparing live snapshot...</span>
           <button class="ghost-button" id="auto-refresh-toggle" type="button">Auto refresh on</button>
           <button class="primary-button" id="refresh-button" type="button">Refresh now</button>
         </div>
       </header>
 
       <main>
-        <div class="loading" id="loading-state">Fetching the latest worker state, run history, and action log…</div>
+        <div class="loading" id="loading-state">Loading worker state and recent activity...</div>
         <div class="error-banner" id="error-banner"></div>
 
         <section class="hero">
           <div class="hero-grid">
             <div class="hero-copy">
-              <div class="eyebrow"><span class="dot tone-primary"></span>Presentation-grade automation command center</div>
-              <h2 id="headline-title">Mailchimp bounce hygiene, visualized like mission control.</h2>
-              <p id="headline-description">A live view into the Worker’s health, its most recent autonomous runs, and the system logic behind each archive decision.</p>
+              <div class="eyebrow"><span class="dot tone-primary"></span>AI automation monitor</div>
+              <h2 id="headline-title">Mailchimp automation, at a glance.</h2>
+              <p id="headline-description">Health, recent runs, and archive activity in one calm view.</p>
               <div class="hero-meta">
                 <div class="pill"><span class="dot tone-secondary"></span><span id="audience-label">Audience snapshot loading</span></div>
                 <div class="pill"><span class="dot tone-primary"></span><span id="schedule-label">Daily run schedule loading</span></div>
@@ -383,12 +383,12 @@ export function renderDashboardPage(): string {
                 <div class="signal-band-top">
                   <div>
                     <p class="section-kicker">Automation confidence</p>
-                    <h3 class="section-title">Worker + webhook + cron posture</h3>
+                    <h3 class="section-title">Worker status</h3>
                   </div>
                   <div class="legend" id="confidence-label">Awaiting signal synthesis</div>
                 </div>
                 <div class="signal-track"><div class="signal-fill" id="signal-fill"></div></div>
-                <p class="section-copy" id="confidence-copy">This score reflects whether the Worker is reachable, the Mailchimp webhook is aligned to the secure endpoint, the cron is active, and run history is being captured.</p>
+                <p class="section-copy" id="confidence-copy">A quick read on health, webhook alignment, schedule, and logging.</p>
               </section>
             </div>
           </div>
@@ -402,9 +402,9 @@ export function renderDashboardPage(): string {
                 <div class="section-head">
                   <div>
                     <p class="section-kicker">Execution history</p>
-                    <h3 class="section-title">What the automation has been doing each run</h3>
+                    <h3 class="section-title">Recent runs</h3>
                   </div>
-                  <p class="section-copy">Each scheduled reconciliation records timing, campaigns scanned, evaluated recipients, and archive volume so you can show real operational evidence instead of screenshots.</p>
+                  <p class="section-copy">Timing, scan count, and archive volume for each run.</p>
                 </div>
                 <div class="timeline-list" id="run-list"></div>
               </section>
@@ -413,25 +413,25 @@ export function renderDashboardPage(): string {
                 <div class="section-head">
                   <div>
                     <p class="section-kicker">System explainer</p>
-                    <h3 class="section-title">How the automation works</h3>
+                    <h3 class="section-title">How it works</h3>
                   </div>
                 </div>
                 <div class="explain-grid">
                   <article class="explain-card">
                     <h4>Immediate event handling</h4>
-                    <p>Mailchimp webhooks call the secure Worker endpoint as soon as an unsubscribe, hard bounce, or abuse signal appears. The Worker normalizes the address and archives the contact idempotently.</p>
+                    <p>Webhooks archive unsubscribes, hard bounces, and abuse reports immediately.</p>
                   </article>
                   <article class="explain-card">
                     <h4>Soft bounce reconciliation</h4>
-                    <p>Soft bounces are intentionally counted at the campaign level. The daily run re-reads Mailchimp email activity across all sent campaigns and archives any address that has soft-bounced in three or more campaigns lifetime.</p>
+                    <p>Soft bounces are recounted daily across all sent campaigns.</p>
                   </article>
                   <article class="explain-card">
                     <h4>No brittle manual cleanup</h4>
-                    <p>The workflow keeps deliverability hygiene running without a server, queue worker, or manual review loop. Cloudflare handles execution, Mailchimp remains the source of truth, and the dashboard explains the result.</p>
+                    <p>Cloudflare runs the schedule. Mailchimp stays the source of truth.</p>
                   </article>
                   <article class="explain-card">
                     <h4>Presentation-safe observability</h4>
-                    <p>Recent actions are masked before they are shown here. You get proof of automation and reasons behind decisions without exposing private customer addresses in client-facing demos.</p>
+                    <p>Recent actions are masked for safe demos and client presentations.</p>
                   </article>
                 </div>
               </section>
@@ -454,9 +454,9 @@ export function renderDashboardPage(): string {
                 <div class="section-head">
                   <div>
                     <p class="section-kicker">Recent actions</p>
-                    <h3 class="section-title">Autonomous decisions the Worker has taken</h3>
+                    <h3 class="section-title">Latest actions</h3>
                   </div>
-                  <p class="section-copy">Useful in portfolio walkthroughs to show the system is actively making hygiene decisions, not just sitting deployed.</p>
+                  <p class="section-copy">Recent archive decisions, safely masked.</p>
                 </div>
                 <div class="action-list" id="action-list"></div>
               </section>
@@ -465,20 +465,20 @@ export function renderDashboardPage(): string {
                 <div class="section-head">
                   <div>
                     <p class="section-kicker">Architecture</p>
-                    <h3 class="section-title">From signal to archive action</h3>
+                    <h3 class="section-title">System flow</h3>
                   </div>
                 </div>
                 <div class="flow-list">
-                  <div class="flow-step" data-step="1">Mailchimp emits real-time audience events and campaign report data for the configured list.</div>
-                  <div class="flow-step" data-step="2">The Cloudflare Worker receives immediate webhook events and runs a daily reconciliation on schedule.</div>
-                  <div class="flow-step" data-step="3">Every archive decision is idempotent, retried on transient Mailchimp failures, and logged into the observability layer for this dashboard.</div>
+                  <div class="flow-step" data-step="1">Mailchimp sends webhook events and campaign report data.</div>
+                  <div class="flow-step" data-step="2">The Worker handles live events and runs a daily recount.</div>
+                  <div class="flow-step" data-step="3">Archive actions are logged here with masked details.</div>
                 </div>
               </section>
             </div>
           </div>
         </div>
 
-        <p class="footer-note">Built for client presentations, portfolio walkthroughs, and day-to-day operational confidence.</p>
+        <p class="footer-note">Built for calm monitoring and clean demos.</p>
       </main>
     </div>`);
   html.push(`<script>
@@ -551,12 +551,12 @@ export function renderDashboardPage(): string {
 
       function renderHealthGrid(health) {
         const rows = [
-          ["Worker reachability", health.workerReachable ? "Live and responding" : "Unavailable"],
+          ["Worker reachability", health.workerReachable ? "Live" : "Unavailable"],
           ["Cron schedule", health.nextRunLabel],
-          ["Webhook alignment", health.webhookConnected ? "Secure Mailchimp webhook connected" : "Webhook attention needed"],
-          ["Last successful run", health.lastRunAt ? formatDateTime(health.lastRunAt) : "Waiting for first recorded run"],
-          ["Last run duration", health.lastRunDurationMs ? Math.round(health.lastRunDurationMs / 1000) + " sec" : "Not recorded yet"],
-          ["Observability log", health.observabilityConnected ? "Run history persistence active" : "Limited to live health only"]
+          ["Webhook alignment", health.webhookConnected ? "Connected" : "Needs attention"],
+          ["Last successful run", health.lastRunAt ? formatDateTime(health.lastRunAt) : "Waiting for first run"],
+          ["Last run duration", health.lastRunDurationMs ? Math.round(health.lastRunDurationMs / 1000) + " sec" : "Not recorded"],
+          ["Observability log", health.observabilityConnected ? "Active" : "Limited"]
         ];
         els.healthGrid.innerHTML = rows.map(([term, value]) => '<dl class="meta-pair"><dt>' + escapeHtml(term) + '</dt><dd>' + escapeHtml(value) + '</dd></dl>').join("");
       }
@@ -573,7 +573,7 @@ export function renderDashboardPage(): string {
 
       function renderRuns(runs) {
         if (!runs.length) {
-          els.runList.innerHTML = '<div class="empty-state">Run history will appear here after the next scheduled reconciliation completes.</div>';
+          els.runList.innerHTML = '<div class="empty-state">Run history appears after the next scheduled cycle.</div>';
           return;
         }
         els.runList.innerHTML = runs.map((run) => {
@@ -603,7 +603,7 @@ export function renderDashboardPage(): string {
 
       function renderActions(actions) {
         if (!actions.length) {
-          els.actionList.innerHTML = '<div class="empty-state">Recent actions will appear after webhook events or the next scheduled run.</div>';
+          els.actionList.innerHTML = '<div class="empty-state">Recent actions appear after the next event or run.</div>';
           return;
         }
         els.actionList.innerHTML = actions.map((action) => {
@@ -620,7 +620,7 @@ export function renderDashboardPage(): string {
               '</div>' +
               '<div class="action-badge"><span class="dot ' + toneClass(tone) + '"></span><strong>' + escapeHtml(action.status.replaceAll("_", " ")) + '</strong></div>' +
             '</div>' +
-            '<div class="action-domain">' + escapeHtml(action.emailMasked || "No email exposed") + (action.domain ? ' · ' + escapeHtml(action.domain) : '') + '</div>' +
+            '<div class="action-domain">' + escapeHtml(action.emailMasked || "No email exposed") + (action.domain ? ' - ' + escapeHtml(action.domain) : '') + '</div>' +
           '</article>';
         }).join("");
       }
@@ -628,7 +628,7 @@ export function renderDashboardPage(): string {
       function renderSparkline(runs) {
         if (!runs.length) {
           els.sparkline.innerHTML = "";
-          els.sparkSummary.textContent = "Run history needed";
+          els.sparkSummary.textContent = "Waiting for run history";
           return;
         }
         const points = runs.slice(0, 8).reverse();
@@ -643,9 +643,9 @@ export function renderDashboardPage(): string {
           return { x, y, run };
         });
         const line = coords.map((point) => point.x + "," + point.y).join(" ");
-        const dots = coords.map((point) => '<circle cx="' + point.x + '" cy="' + point.y + '" r="5" fill="#7bd0ff"><title>' + escapeHtml(formatDateTime(point.run.startedAt) + " · " + point.run.archivedCount + " archived") + '</title></circle>').join("");
+        const dots = coords.map((point) => '<circle cx="' + point.x + '" cy="' + point.y + '" r="5" fill="#d9c7ab"><title>' + escapeHtml(formatDateTime(point.run.startedAt) + " - " + point.run.archivedCount + " archived") + '</title></circle>').join("");
         const area = "0,120 " + line + " 600,120";
-        els.sparkline.innerHTML = '<polygon points="' + area + '" fill="rgba(123,208,255,0.12)"></polygon><polyline points="' + line + '" fill="none" stroke="#7bd0ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>' + dots;
+        els.sparkline.innerHTML = '<polygon points="' + area + '" fill="rgba(217,199,171,0.12)"></polygon><polyline points="' + line + '" fill="none" stroke="#d9c7ab" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>' + dots;
         const total = values.reduce((sum, value) => sum + value, 0);
         els.sparkSummary.textContent = total + " total archives across the latest " + points.length + " recorded runs";
       }
@@ -669,10 +669,10 @@ export function renderDashboardPage(): string {
         els.confidenceLabel.textContent = confidence + "% confidence";
         els.signalFill.style.width = confidence + "%";
         els.confidenceCopy.textContent = health.overall === "healthy"
-          ? "The automation is reachable, the Mailchimp webhook is aligned, and the Worker is recording operational history for this presentation dashboard."
+          ? "Worker, webhook, and logging are in a good state."
           : health.overall === "warning"
-            ? "The automation is reachable, but one or more supporting signals needs attention. Review the health panel before a client presentation."
-            : "The automation needs intervention before it should be presented as healthy.";
+            ? "The system is live, but one or more signals still need review."
+            : "This automation needs attention before presentation.";
       }
 
       async function loadDashboard() {

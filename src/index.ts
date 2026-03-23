@@ -657,11 +657,10 @@ async function buildDashboardPayload(env: Env): Promise<DashboardPayload> {
   return {
     generatedAt: new Date().toISOString(),
     headline: {
-      title: "Mailchimp bounce hygiene, visualized like mission control.",
-      eyebrow: "Presentation-grade automation command center",
-      description:
-        "A live view into the Worker’s health, its most recent autonomous runs, and the system logic behind each archive decision.",
-      audienceLabel: `Audience ${maskListId(env.MAILCHIMP_LIST_ID)} · Worker observability ${env.DASHBOARD_KV ? "enabled" : "limited"}`
+      title: "Mailchimp automation, at a glance.",
+      eyebrow: "AI automation monitor",
+      description: "Health, recent runs, and archive activity in one calm view.",
+      audienceLabel: `Audience ${maskListId(env.MAILCHIMP_LIST_ID)} - Worker observability ${env.DASHBOARD_KV ? "enabled" : "limited"}`
     },
     health,
     metrics,
