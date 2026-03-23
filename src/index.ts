@@ -1,10 +1,24 @@
 import { md5 } from "js-md5";
+import {
+  renderDashboardPage,
+  type DashboardActionCard,
+  type DashboardHealth,
+  type DashboardMetric,
+  type DashboardPayload,
+  type DashboardRunCard
+} from "./dashboard";
 
 interface Env {
   MAILCHIMP_API_KEY: string;
   MAILCHIMP_SERVER_PREFIX: string;
   MAILCHIMP_LIST_ID: string;
   MAILCHIMP_WEBHOOK_SECRET: string;
+  DASHBOARD_KV?: KVNamespaceLike;
+}
+
+interface KVNamespaceLike {
+  get(key: string): Promise<string | null>;
+  put(key: string, value: string): Promise<void>;
 }
 
 interface WorkerExecutionContext {
@@ -61,6 +75,33 @@ interface MailchimpAbuseReportsResponse {
   total_items?: number;
 }
 
+interface MailchimpWebhook {
+  id?: string;
+  url?: string;
+}
+
+interface MailchimpWebhooksResponse {
+  webhooks?: MailchimpWebhook[];
+}
+
+interface ReconciliationSummary {
+  runId: string;
+  startedAt: string;
+  finishedAt: string;
+  durationMs: number;
+  source: string;
+  status: "success" | "failed";
+  campaignsProcessed: number;
+  emailsEvaluated: number;
+  archivedCount: number;
+  abuseArchivedCount: number;
+  note: string;
+}
+
+interface ObservabilityRunRecord extends DashboardRunCard {}
+
+interface ObservabilityActionRecord extends DashboardActionCard {}
+
 interface MailchimpErrorBody {
   status?: number;
   title?: string;
@@ -81,6 +122,11 @@ const MAILCHIMP_PAGE_SIZE = 1000;
 const MAX_RETRIES = 4;
 const SOFT_BOUNCE_THRESHOLD = 3;
 const MAX_WEBHOOK_BODY_BYTES = 64 * 1024;
+const RUN_HISTORY_KEY = "dashboard:runs";
+const ACTION_HISTORY_KEY = "dashboard:actions";
+const MAX_RUN_HISTORY = 18;
+const MAX_ACTION_HISTORY = 60;
+const CRON_EXPRESSION = "0 2 * * *";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -104,8 +150,13 @@ export default {
         return jsonResponse({ ok: true, service: "mailchimp-bounce-monitor" }, 200);
       }
 
+      if (url.pathname === "/api/dashboard" && request.method === "GET") {
+        const payload = await buildDashboardPayload(env);
+        return jsonResponse(payload, 200);
+      }
+
       if (url.pathname === "/" && request.method === "GET") {
-        return jsonResponse({ ok: true, service: "mailchimp-bounce-monitor" }, 200);
+        return htmlResponse(renderDashboardPage());
       }
 
       return jsonResponse({ ok: false, error: "Not found" }, 404);
@@ -120,7 +171,7 @@ export default {
     env: Env,
     ctx: WorkerExecutionContext
   ): Promise<void> {
-    ctx.waitUntil(runSoftBounceReconciliation(env, controller.scheduledTime));
+    ctx.waitUntil(runScheduledReconciliation(env, controller.scheduledTime));
   }
 };
 
@@ -180,6 +231,18 @@ async function handleWebhook(request: Request, env: Env): Promise<Response> {
 
   if (eventType === "unsubscribe" || eventType === "abuse") {
     const result = await archiveMember(email, env, `webhook:${eventType}`);
+    await recordAction(env, {
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      channel: "webhook",
+      reason: eventType,
+      status: result.archived ? "archived" : "already_archived",
+      emailMasked: maskEmail(email),
+      domain: extractDomain(email),
+      detail: result.archived
+        ? `Archived contact from webhook ${eventType} signal`
+        : `Webhook ${eventType} matched an already archived contact`
+    });
     return jsonResponse(
       {
         ok: true,
@@ -193,6 +256,18 @@ async function handleWebhook(request: Request, env: Env): Promise<Response> {
 
   if (eventType === "hard_bounce") {
     const result = await archiveMember(email, env, "webhook:hard_bounce");
+    await recordAction(env, {
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      channel: "webhook",
+      reason: "hard_bounce",
+      status: result.archived ? "archived" : "already_archived",
+      emailMasked: maskEmail(email),
+      domain: extractDomain(email),
+      detail: result.archived
+        ? "Archived contact from hard bounce signal"
+        : "Hard bounce received for a contact that was already archived"
+    });
     return jsonResponse(
       {
         ok: true,
@@ -209,6 +284,16 @@ async function handleWebhook(request: Request, env: Env): Promise<Response> {
       email,
       message: "Soft bounces are counted during the daily reconciliation job.",
       reason
+    });
+    await recordAction(env, {
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      channel: "webhook",
+      reason: "soft_bounce",
+      status: "observed",
+      emailMasked: maskEmail(email),
+      domain: extractDomain(email),
+      detail: "Soft bounce observed and deferred to the daily reconciliation cycle"
     });
 
     return jsonResponse(
@@ -235,10 +320,39 @@ async function handleWebhook(request: Request, env: Env): Promise<Response> {
   );
 }
 
-async function runSoftBounceReconciliation(env: Env, scheduledTime: number): Promise<void> {
-  log("soft_bounce_reconciliation_started", {
-    scheduledTime: new Date(scheduledTime).toISOString()
-  });
+async function runScheduledReconciliation(env: Env, scheduledTime: number): Promise<void> {
+  const runId = crypto.randomUUID();
+  const startedAt = new Date(scheduledTime).toISOString();
+  try {
+    const summary = await runSoftBounceReconciliation(env, scheduledTime, runId);
+    await recordRun(env, summary);
+  } catch (error) {
+    const failedAt = new Date().toISOString();
+    await recordRun(env, {
+      runId,
+      startedAt,
+      finishedAt: failedAt,
+      durationMs: Math.max(0, new Date(failedAt).getTime() - new Date(startedAt).getTime()),
+      source: "scheduled",
+      status: "failed",
+      campaignsProcessed: 0,
+      emailsEvaluated: 0,
+      archivedCount: 0,
+      abuseArchivedCount: 0,
+      note: `Run failed: ${toErrorMessage(error)}`
+    });
+    throw error;
+  }
+}
+
+async function runSoftBounceReconciliation(
+  env: Env,
+  scheduledTime: number,
+  runId = crypto.randomUUID()
+): Promise<ReconciliationSummary> {
+  const startedAt = new Date(scheduledTime).toISOString();
+  const startedMs = Date.now();
+  log("soft_bounce_reconciliation_started", { scheduledTime: startedAt, runId });
 
   let abuseArchivedCount = 0;
   try {
@@ -253,14 +367,28 @@ async function runSoftBounceReconciliation(env: Env, scheduledTime: number): Pro
       if (result.archived) {
         abuseArchivedCount += 1;
       }
+
+      await recordAction(env, {
+        id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+        channel: "scheduled",
+        reason: "abuse_report",
+        status: result.archived ? "archived" : "already_archived",
+        emailMasked: maskEmail(email),
+        domain: extractDomain(email),
+        detail: result.archived
+          ? "Archived contact from abuse report during daily reconciliation"
+          : "Abuse report matched a contact that was already archived"
+      });
     }
 
     log("abuse_report_reconciliation_completed", {
       abuseReportsProcessed: abuseReports.length,
-      abuseArchivedCount
+      abuseArchivedCount,
+      runId
     });
   } catch (error) {
-    log("abuse_report_reconciliation_failed", { error: toErrorMessage(error) });
+    log("abuse_report_reconciliation_failed", { error: toErrorMessage(error), runId });
   }
 
   const campaigns = await getSentCampaigns(env);
@@ -275,8 +403,7 @@ async function runSoftBounceReconciliation(env: Env, scheduledTime: number): Pro
         continue;
       }
 
-      const softBouncedInCampaign = entry.activity.some(isSoftBounceActivity);
-      if (!softBouncedInCampaign) {
+      if (!entry.activity.some(isSoftBounceActivity)) {
         continue;
       }
 
@@ -296,21 +423,53 @@ async function runSoftBounceReconciliation(env: Env, scheduledTime: number): Pro
       archivedCount += 1;
     }
 
+    await recordAction(env, {
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      channel: "scheduled",
+      reason: "soft_bounce_threshold",
+      status: result.archived ? "archived" : "already_archived",
+      emailMasked: maskEmail(email),
+      domain: extractDomain(email),
+      detail: result.archived
+        ? `Archived after reaching ${softBounceCount} lifetime soft-bounce campaigns`
+        : `Soft-bounce threshold was met again at ${softBounceCount} campaigns`
+    });
+
     log("soft_bounce_threshold_evaluated", {
       email,
       softBounceCount,
       archived: result.archived,
-      alreadyArchived: result.alreadyArchived
+      alreadyArchived: result.alreadyArchived,
+      runId
     });
   }
+
+  const finishedAt = new Date().toISOString();
+  const summary: ReconciliationSummary = {
+    runId,
+    startedAt,
+    finishedAt,
+    durationMs: Date.now() - startedMs,
+    source: "scheduled",
+    status: "success",
+    campaignsProcessed: campaigns.length,
+    emailsEvaluated: counts.size,
+    archivedCount,
+    abuseArchivedCount,
+    note: `Archived ${archivedCount} contacts after evaluating ${counts.size} addresses`
+  };
 
   log("soft_bounce_reconciliation_completed", {
     campaignsProcessed: campaigns.length,
     emailsEvaluated: counts.size,
     abuseArchivedCount,
     archivedCount,
-    summary: `Archived ${archivedCount} emails for soft bounces`
+    summary: `Archived ${archivedCount} emails for soft bounces`,
+    runId
   });
+
+  return summary;
 }
 
 function subscriberHash(email: string): string {
@@ -412,6 +571,14 @@ async function getListAbuseReports(env: Env): Promise<MailchimpAbuseReport[]> {
   return reports;
 }
 
+async function getListWebhooks(env: Env): Promise<MailchimpWebhook[]> {
+  const response = await mailchimpRequest<MailchimpWebhooksResponse>(
+    `/lists/${encodeURIComponent(env.MAILCHIMP_LIST_ID)}/webhooks`,
+    env
+  );
+  return response.webhooks ?? [];
+}
+
 async function getCampaignEmailActivity(
   campaignId: string,
   env: Env
@@ -471,6 +638,190 @@ async function countSoftBounces(email: string, env: Env): Promise<number> {
   }
 
   return softBounceCount;
+}
+
+async function buildDashboardPayload(env: Env): Promise<DashboardPayload> {
+  const [runs, actions, webhookConnected] = await Promise.all([
+    readHistory<ObservabilityRunRecord>(env, RUN_HISTORY_KEY),
+    readHistory<ObservabilityActionRecord>(env, ACTION_HISTORY_KEY),
+    isWebhookConnected(env)
+  ]);
+
+  const latestRun = runs[0] ?? null;
+  const health = buildDashboardHealth(env, latestRun, webhookConnected);
+  const campaignSnapshotCount = latestRun
+    ? latestRun.campaignsProcessed
+    : await getSentCampaignCountSafely(env);
+  const metrics = buildDashboardMetrics(runs, actions, latestRun, campaignSnapshotCount);
+
+  return {
+    generatedAt: new Date().toISOString(),
+    headline: {
+      title: "Mailchimp bounce hygiene, visualized like mission control.",
+      eyebrow: "Presentation-grade automation command center",
+      description:
+        "A live view into the Worker’s health, its most recent autonomous runs, and the system logic behind each archive decision.",
+      audienceLabel: `Audience ${maskListId(env.MAILCHIMP_LIST_ID)} · Worker observability ${env.DASHBOARD_KV ? "enabled" : "limited"}`
+    },
+    health,
+    metrics,
+    runs,
+    actions
+  };
+}
+
+function buildDashboardHealth(
+  env: Env,
+  latestRun: ObservabilityRunRecord | null,
+  webhookConnected: boolean
+): DashboardHealth {
+  const overall: DashboardHealth["overall"] =
+    latestRun?.status === "failed"
+      ? "critical"
+      : latestRun && webhookConnected && env.DASHBOARD_KV
+        ? "healthy"
+        : "warning";
+
+  return {
+    overall,
+    workerReachable: true,
+    automationActive: true,
+    webhookConnected,
+    observabilityConnected: Boolean(env.DASHBOARD_KV),
+    cronExpression: CRON_EXPRESSION,
+    nextRunLabel: "Runs daily at 2:00 AM UTC (10:00 PM ET while daylight saving time is active)",
+    lastRunStatus: latestRun?.status ?? "unknown",
+    lastRunAt: latestRun?.finishedAt ?? latestRun?.startedAt ?? null,
+    lastRunDurationMs: latestRun?.durationMs ?? null
+  };
+}
+
+function buildDashboardMetrics(
+  runs: ObservabilityRunRecord[],
+  actions: ObservabilityActionRecord[],
+  latestRun: ObservabilityRunRecord | null,
+  campaignSnapshotCount: number
+): DashboardMetric[] {
+  const archivedActions = actions.filter((action) => action.status === "archived");
+  const webhookArchives = archivedActions.filter((action) => action.channel === "webhook").length;
+  const scheduledArchives = archivedActions.filter((action) => action.channel === "scheduled").length;
+  const successfulRuns = runs.filter((run) => run.status === "success").length;
+
+  return [
+    {
+      label: "Latest campaigns scanned",
+      value: String(latestRun?.campaignsProcessed ?? campaignSnapshotCount),
+      detail: latestRun
+        ? `Most recent scheduled run evaluated ${latestRun.emailsEvaluated} unique addresses`
+        : `Live Mailchimp snapshot shows ${campaignSnapshotCount} sent campaigns waiting for the next recorded run`,
+      tone: "primary"
+    },
+    {
+      label: "Total archived actions",
+      value: String(archivedActions.length),
+      detail: `${scheduledArchives} from reconciliations, ${webhookArchives} from immediate webhooks`,
+      tone: "secondary"
+    },
+    {
+      label: "Recorded run history",
+      value: String(runs.length),
+      detail: successfulRuns > 0 ? `${successfulRuns} successful recorded runs` : "Waiting for the first successful recorded run",
+      tone: runs.some((run) => run.status === "failed") ? "warning" : "primary"
+    },
+    {
+      label: "Latest run duration",
+      value: latestRun?.durationMs ? `${Math.round(latestRun.durationMs / 1000)}s` : "N/A",
+      detail: latestRun ? latestRun.note : "No scheduled execution recorded yet",
+      tone: latestRun?.status === "failed" ? "danger" : "neutral"
+    }
+  ];
+}
+
+async function isWebhookConnected(env: Env): Promise<boolean> {
+  try {
+    const webhooks = await getListWebhooks(env);
+    const webhookPath = getWebhookPath(env);
+    return webhooks.some((webhook) => {
+      if (!webhook.url) {
+        return false;
+      }
+      try {
+        const parsed = new URL(webhook.url);
+        return safeEqual(parsed.pathname, webhookPath);
+      } catch {
+        return false;
+      }
+    });
+  } catch (error) {
+    log("dashboard_webhook_check_failed", { error: toErrorMessage(error) });
+    return false;
+  }
+}
+
+async function getSentCampaignCountSafely(env: Env): Promise<number> {
+  try {
+    const campaigns = await getSentCampaigns(env);
+    return campaigns.length;
+  } catch (error) {
+    log("dashboard_campaign_snapshot_failed", { error: toErrorMessage(error) });
+    return 0;
+  }
+}
+
+async function recordRun(env: Env, run: ReconciliationSummary): Promise<void> {
+  if (!env.DASHBOARD_KV) {
+    return;
+  }
+
+  const nextRuns = [
+    {
+      id: run.runId,
+      startedAt: run.startedAt,
+      finishedAt: run.finishedAt,
+      durationMs: run.durationMs,
+      status: run.status,
+      source: run.source,
+      campaignsProcessed: run.campaignsProcessed,
+      emailsEvaluated: run.emailsEvaluated,
+      archivedCount: run.archivedCount,
+      abuseArchivedCount: run.abuseArchivedCount,
+      note: run.note
+    } satisfies ObservabilityRunRecord,
+    ...(await readHistory<ObservabilityRunRecord>(env, RUN_HISTORY_KEY))
+  ].slice(0, MAX_RUN_HISTORY);
+
+  await env.DASHBOARD_KV.put(RUN_HISTORY_KEY, JSON.stringify(nextRuns));
+}
+
+async function recordAction(env: Env, action: ObservabilityActionRecord): Promise<void> {
+  if (!env.DASHBOARD_KV) {
+    return;
+  }
+
+  const nextActions = [action, ...(await readHistory<ObservabilityActionRecord>(env, ACTION_HISTORY_KEY))].slice(
+    0,
+    MAX_ACTION_HISTORY
+  );
+
+  await env.DASHBOARD_KV.put(ACTION_HISTORY_KEY, JSON.stringify(nextActions));
+}
+
+async function readHistory<T>(env: Env, key: string): Promise<T[]> {
+  if (!env.DASHBOARD_KV) {
+    return [];
+  }
+
+  const raw = await env.DASHBOARD_KV.get(key);
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? (parsed as T[]) : [];
+  } catch {
+    return [];
+  }
 }
 
 async function mailchimpRequest<T>(
@@ -697,6 +1048,17 @@ function log(event: string, data: Record<string, unknown>): void {
   );
 }
 
+function htmlResponse(body: string, status = 200): Response {
+  return new Response(body, {
+    status,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff"
+    }
+  });
+}
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body, null, 2), {
     status,
@@ -706,6 +1068,36 @@ function jsonResponse(body: unknown, status = 200): Response {
       "X-Content-Type-Options": "nosniff"
     }
   });
+}
+
+function maskListId(listId: string): string {
+  if (listId.length <= 4) {
+    return listId;
+  }
+  return `${listId.slice(0, 4)}••••${listId.slice(-2)}`;
+}
+
+function maskEmail(email: string): string {
+  const normalized = normalizeEmail(email);
+  if (!normalized) {
+    return "masked";
+  }
+
+  const [local, domain] = normalized.split("@");
+  if (!domain) {
+    return "masked";
+  }
+
+  const prefix = local.length <= 2 ? local[0] ?? "*" : `${local[0]}${"*".repeat(Math.max(1, local.length - 2))}${local.slice(-1)}`;
+  return `${prefix}@${domain}`;
+}
+
+function extractDomain(email: string): string | null {
+  const normalized = normalizeEmail(email);
+  if (!normalized) {
+    return null;
+  }
+  return normalized.split("@")[1] ?? null;
 }
 
 function getWebhookPath(env: Env): string {

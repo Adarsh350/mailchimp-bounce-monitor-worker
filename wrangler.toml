@@ -5,3 +5,7 @@ workers_dev = true
 
 [triggers]
 crons = ["0 2 * * *"]
+
+[[kv_namespaces]]
+binding = "DASHBOARD_KV"
+id = "43e0050d8c8842949e9fdea99e0d8a93"

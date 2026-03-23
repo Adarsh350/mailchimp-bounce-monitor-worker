@@ -2,26 +2,32 @@
 
 This project deploys a single Cloudflare Worker that:
 
+- Serves a presentation-grade dashboard at `GET /`
+- Exposes live dashboard data at `GET /api/dashboard`
 - Receives Mailchimp audience webhook events at `POST /mailchimp/webhook/<secret>`
 - Archives contacts immediately for unsubscribes, hard bounces, and abuse reports
 - Runs a free daily Cloudflare Cron Trigger at `0 2 * * *`
 - Recomputes lifetime soft-bounce totals across all sent campaigns with no database
 - Archives any email that has soft-bounced in 3 or more campaigns total
+- Stores lightweight run history and masked recent actions in Workers KV for the dashboard
 
 ## What It Does In Production
 
 Once deployed, this project is fully automated:
 
+- The Worker serves a live frontend dashboard for demos, portfolio use, and operational visibility
 - Mailchimp sends audience webhook events to the Worker immediately
 - The Worker archives unsubscribes and hard bounces right away
 - Cloudflare runs the daily cron automatically with no server to keep alive
 - The daily cron recounts soft bounces across sent campaigns and archives any address that has soft-bounced in 3 or more campaigns total
+- The Worker records masked action history and scheduled run summaries for the dashboard
 
 It keeps running until you disable the Worker, remove the cron trigger, delete the Mailchimp webhook, revoke the Mailchimp API key, or the upstream APIs change.
 
 ## Files
 
 - `src/index.ts`: Worker logic
+- `src/dashboard.ts`: interactive frontend shell
 - `wrangler.toml`: Worker config and daily cron
 - `.dev.vars.example`: Local environment variable template
 - `docs/OPERATIONS.md`: runbook, schedule, monitoring, and recovery steps
@@ -78,6 +84,18 @@ In Mailchimp:
 7. Save the webhook
 
 The webhook is used for immediate archiving when someone unsubscribes, hard-bounces, or generates an abuse report.
+
+## Dashboard
+
+After deploy, your `workers.dev` root URL becomes the dashboard homepage. It shows:
+
+- current Worker health and automation posture
+- whether the Mailchimp webhook is connected
+- recent scheduled run history
+- recent masked archive actions
+- an explainer of how the automation works
+
+The dashboard does not expose Mailchimp secrets or raw customer email addresses.
 
 ## Security Notes
 
