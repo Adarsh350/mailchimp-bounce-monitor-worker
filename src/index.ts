@@ -1012,7 +1012,12 @@ function isAlreadyArchivedError(error: unknown): boolean {
   }
 
   const detail = `${error.body.title ?? ""} ${error.body.detail ?? ""}`.toLowerCase();
-  return detail.includes("resource not found") || detail.includes("is not a list member");
+  return (
+    detail.includes("resource not found") ||
+    detail.includes("is not a list member") ||
+    detail.includes("cannot be removed") ||
+    detail.includes("can not archive a contact that is bounced, pending or archived")
+  );
 }
 
 async function safeParseMailchimpError(response: Response): Promise<MailchimpErrorBody> {
