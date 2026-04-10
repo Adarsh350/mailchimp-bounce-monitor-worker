@@ -1,0 +1,88 @@
+name: Graphify Knowledge Graph
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  graphify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install graphify
+        run: pip install graphifyy --quiet
+
+      - name: Run AST knowledge graph extraction
+        run: |
+          python << 'EOF'
+          import json, os, sys
+          from graphify.detect import detect
+          from graphify.extract import collect_files, extract
+          from graphify.build import build_from_json
+          from graphify.cluster import cluster, score_all
+          from graphify.analyze import god_nodes, surprising_connections, suggest_questions
+          from graphify.report import generate
+          from graphify.export import to_json
+          from pathlib import Path
+
+          os.makedirs('graphify-out', exist_ok=True)
+          result = detect(Path('.'))
+          code_files = [Path(f) for f in result['files'].get('code', [])]
+
+          if not code_files:
+              print('[graphify] No code files found - skipping')
+              sys.exit(0)
+
+          print(f'[graphify] Extracting AST from {len(code_files)} code files...')
+          ast_result = extract(code_files)
+
+          valid_types = {'code', 'document', 'image', 'paper', 'rationale'}
+          for n in ast_result['nodes']:
+              if n.get('file_type') not in valid_types:
+                  n['file_type'] = 'document'
+
+          G = build_from_json(ast_result)
+          communities = cluster(G)
+          cohesion = score_all(G, communities)
+          gods = god_nodes(G)
+          surprises = surprising_connections(G, communities)
+          labels = {cid: 'Community ' + str(cid) for cid in communities}
+          questions = suggest_questions(G, communities, labels)
+          detection = {
+              'total_files': result['total_files'],
+              'total_words': result['total_words'],
+              'files': result['files'],
+              'warning': None
+          }
+          tokens = {'input': 0, 'output': 0}
+
+          report = generate(G, communities, cohesion, labels, gods, surprises,
+                            detection, tokens, '.', suggested_questions=questions)
+          Path('graphify-out/GRAPH_REPORT.md').write_text(report, encoding='utf-8')
+          to_json(G, communities, 'graphify-out/graph.json')
+          print(f'[graphify] Done: {G.number_of_nodes()} nodes, {G.number_of_edges()} edges, {len(communities)} communities')
+          EOF
+
+      - name: Commit graph updates
+        run: |
+          git config user.name 'graphify-bot'
+          git config user.email 'graphify@iyara-labs.github.io'
+          git add graphify-out/GRAPH_REPORT.md graphify-out/graph.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo '[graphify] No changes to commit'
+          else
+            git commit -m 'chore: update knowledge graph [skip ci]'
+            git push
+          fi
