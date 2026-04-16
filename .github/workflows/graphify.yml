@@ -82,7 +82,7 @@ jobs:
           if git diff --staged --quiet; then
             echo '[graphify] No changes to commit'
           else
-            git commit -m 'chore: update knowledge graph [skip ci]'
+            git commit -m 'chore: update knowledge graph [skip ci][vercel skip]'
             git pull --rebase 2>/dev/null || true
             git push
           fi
