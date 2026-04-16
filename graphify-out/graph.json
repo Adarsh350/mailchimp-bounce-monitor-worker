@@ -9,7 +9,7 @@
       "source_file": "src/dashboard.ts",
       "source_location": "L1",
       "id": "src_dashboard_ts",
-      "community": 9,
+      "community": 8,
       "norm_label": "dashboard.ts"
     },
     {
@@ -18,7 +18,7 @@
       "source_file": "src/dashboard.ts",
       "source_location": "L60",
       "id": "dashboard_renderdashboardpage",
-      "community": 9,
+      "community": 8,
       "norm_label": "renderdashboardpage()"
     },
     {
@@ -36,7 +36,7 @@
       "source_file": "src/index.ts",
       "source_location": "L132",
       "id": "index_fetch",
-      "community": 5,
+      "community": 6,
       "norm_label": "fetch()"
     },
     {
@@ -216,7 +216,7 @@
       "source_file": "src/index.ts",
       "source_location": "L826",
       "id": "index_mailchimprequest",
-      "community": 6,
+      "community": 5,
       "norm_label": "mailchimprequest()"
     },
     {
@@ -261,7 +261,7 @@
       "source_file": "src/index.ts",
       "source_location": "L992",
       "id": "index_validateenv",
-      "community": 8,
+      "community": 9,
       "norm_label": "validateenv()"
     },
     {
@@ -279,7 +279,7 @@
       "source_file": "src/index.ts",
       "source_location": "L1023",
       "id": "index_safeparsemailchimperror",
-      "community": 6,
+      "community": 5,
       "norm_label": "safeparsemailchimperror()"
     },
     {
@@ -288,7 +288,7 @@
       "source_file": "src/index.ts",
       "source_location": "L1035",
       "id": "index_getretrydelayms",
-      "community": 6,
+      "community": 5,
       "norm_label": "getretrydelayms()"
     },
     {
@@ -306,7 +306,7 @@
       "source_file": "src/index.ts",
       "source_location": "L1055",
       "id": "index_htmlresponse",
-      "community": 5,
+      "community": 6,
       "norm_label": "htmlresponse()"
     },
     {
@@ -315,7 +315,7 @@
       "source_file": "src/index.ts",
       "source_location": "L1066",
       "id": "index_jsonresponse",
-      "community": 5,
+      "community": 6,
       "norm_label": "jsonresponse()"
     },
     {
@@ -351,7 +351,7 @@
       "source_file": "src/index.ts",
       "source_location": "L1107",
       "id": "index_getwebhookpath",
-      "community": 8,
+      "community": 9,
       "norm_label": "getwebhookpath()"
     },
     {
@@ -387,7 +387,7 @@
       "source_file": "src/index.ts",
       "source_location": "L1142",
       "id": "index_safeequal",
-      "community": 5,
+      "community": 6,
       "norm_label": "safeequal()"
     },
     {
@@ -396,7 +396,7 @@
       "source_file": "src/index.ts",
       "source_location": "L1155",
       "id": "index_sleep",
-      "community": 6,
+      "community": 5,
       "norm_label": "sleep()"
     },
     {
