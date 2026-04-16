@@ -73,18 +73,18 @@ Nodes (1): MailchimpApiError
 
 ### Community 8 - "Community 8"
 Cohesion: 1.0
-Nodes (1): renderDashboardPage()
+Nodes (2): getWebhookPath(), validateEnv()
 
 ### Community 9 - "Community 9"
 Cohesion: 1.0
-Nodes (2): getWebhookPath(), validateEnv()
+Nodes (1): renderDashboardPage()
 
 ## Knowledge Gaps
 - **Thin community `Community 7`** (2 nodes): `MailchimpApiError`, `.constructor()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 8`** (2 nodes): `renderDashboardPage()`, `dashboard.ts`
+- **Thin community `Community 8`** (2 nodes): `getWebhookPath()`, `validateEnv()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 9`** (2 nodes): `getWebhookPath()`, `validateEnv()`
+- **Thin community `Community 9`** (2 nodes): `renderDashboardPage()`, `dashboard.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
@@ -92,7 +92,7 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `fetch()` connect `Community 6` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 5`, `Community 8`, `Community 9`?**
   _High betweenness centrality (0.098) - this node is a cross-community bridge._
-- **Why does `renderDashboardPage()` connect `Community 8` to `Community 6`?**
+- **Why does `renderDashboardPage()` connect `Community 9` to `Community 6`?**
   _High betweenness centrality (0.043) - this node is a cross-community bridge._
 - **Why does `MailchimpApiError` connect `Community 7` to `Community 1`?**
   _High betweenness centrality (0.043) - this node is a cross-community bridge._
