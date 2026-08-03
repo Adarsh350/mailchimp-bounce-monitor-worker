@@ -1,6 +1,7 @@
 {
   "name": "mailchimp-bounce-monitor-worker",
   "version": "1.0.0",
+  "license": "MIT",
   "private": true,
   "description": "Cloudflare Worker that archives Mailchimp contacts for hard bounces, abuse reports, unsubscribes, and repeated soft bounces.",
   "scripts": {
