@@ -1,11 +1,11 @@
 # Graph Report - .  (2026-08-03)
 
 ## Corpus Check
-- 8 files · ~7,780 words
+- 8 files · ~7,782 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 106 nodes · 194 edges · 11 communities (9 shown, 2 thin omitted)
+- 107 nodes · 195 edges · 11 communities (8 shown, 3 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
@@ -45,7 +45,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (11 total, 2 thin omitted)
+## Communities (11 total, 3 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.22
@@ -53,7 +53,7 @@ Nodes (19): archiveMember(), countSoftBounces(), extractDomain(), getCampaignEma
 
 ### Community 1 - "Community 1"
 Cohesion: 0.12
-Nodes (15): js-md5, dependencies, js-md5, description, devDependencies, typescript, wrangler, name (+7 more)
+Nodes (16): js-md5, dependencies, js-md5, description, devDependencies, typescript, wrangler, license (+8 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.12
@@ -69,24 +69,20 @@ Nodes (13): Env, MailchimpAbuseReport, MailchimpAbuseReportsResponse, MailchimpC
 
 ### Community 5 - "Community 5"
 Cohesion: 0.29
-Nodes (6): DashboardHealth, DashboardMetric, DashboardPayload, DashboardRunCard, renderDashboardPage(), ObservabilityRunRecord
+Nodes (6): DashboardActionCard, DashboardHealth, DashboardMetric, DashboardPayload, renderDashboardPage(), ObservabilityActionRecord
 
 ### Community 6 - "Community 6"
-Cohesion: 0.33
-Nodes (4): getRetryDelayMs(), KVNamespaceLike, readHistory(), recordRun()
+Cohesion: 0.29
+Nodes (5): getRetryDelayMs(), KVNamespaceLike, readHistory(), recordAction(), recordRun()
 
 ### Community 7 - "Community 7"
 Cohesion: 0.50
 Nodes (4): firstNonEmpty(), isRecord(), parseWebhookPayload(), stringifyWebhookValue()
 
-### Community 9 - "Community 9"
-Cohesion: 0.67
-Nodes (3): DashboardActionCard, isSoftBounceActivity(), ObservabilityActionRecord
-
 ## Knowledge Gaps
-- **34 isolated node(s):** `name`, `version`, `private`, `description`, `dev` (+29 more)
+- **35 isolated node(s):** `name`, `version`, `license`, `private`, `description` (+30 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **2 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -95,10 +91,10 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Why does `MailchimpApiError` connect `Community 10` to `Community 4`?**
   _High betweenness centrality (0.013) - this node is a cross-community bridge._
-- **What connects `name`, `version`, `private` to the rest of the system?**
-  _34 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `name`, `version`, `license` to the rest of the system?**
+  _35 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.125 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11764705882352941 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.125 - nodes in this community are weakly interconnected._
 - **Should `Community 4` be split into smaller, more focused modules?**
