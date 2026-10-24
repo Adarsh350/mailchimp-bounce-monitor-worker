@@ -45,17 +45,26 @@ It keeps running until you disable the Worker, remove the cron trigger, delete t
 
 Use local Wrangler through `npx` only.
 
-This project pins `wrangler` to `2.20.0` because newer Wrangler releases pull `workerd`, which does not currently ship a Windows ARM64 package.
+`workerd` (the runtime Wrangler loads) ships no Windows ARM64 binary; it maps Windows ARM64 to `@cloudflare/workerd-windows-64`, which runs under x64 emulation. npm skips that x64 package on ARM, so unpack it by hand once after installing (installing it with `npm install --cpu x64` swaps esbuild to its x64 binary and breaks bundling):
 
-1. `npm install`
+```powershell
+npm install
+npm pack @cloudflare/workerd-windows-64@<workerd version in package-lock.json>
+mkdir node_modules/@cloudflare/workerd-windows-64
+tar -xzf cloudflare-workerd-windows-64-*.tgz -C node_modules/@cloudflare/workerd-windows-64 --strip-components=1
+```
+
+Then:
+
+1. `npx wrangler --version` (should print 4.x)
 2. `.\node_modules\.bin\wrangler.cmd login`
 3. `npx wrangler secret put MAILCHIMP_API_KEY`
 4. `npx wrangler secret put MAILCHIMP_SERVER_PREFIX`
 5. `npx wrangler secret put MAILCHIMP_LIST_ID`
 6. `npx wrangler secret put MAILCHIMP_WEBHOOK_SECRET`
-7. `npx wrangler publish`
+7. `npx wrangler deploy`
 
-After publish, Cloudflare prints your Worker URL in this format:
+After deploy, Cloudflare prints your Worker URL in this format:
 
 `https://mailchimp-bounce-monitor.<your-subdomain>.workers.dev`
 

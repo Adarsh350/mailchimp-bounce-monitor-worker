@@ -60,18 +60,18 @@ If you rotate the Mailchimp API key:
 @'
 NEW-MAILCHIMP-KEY
 '@ | .\node_modules\.bin\wrangler.cmd secret put MAILCHIMP_API_KEY
-.\node_modules\.bin\wrangler.cmd publish
+.\node_modules\.bin\wrangler.cmd deploy
 ```
 
 If you rotate the webhook secret:
 
 1. Update the Worker secret `MAILCHIMP_WEBHOOK_SECRET`
-2. Publish the Worker again
+2. Deploy the Worker again
 3. Update the Mailchimp audience webhook URL to the new secret path
 
 ## Windows ARM64 Note
 
-This repo pins `wrangler` to `2.20.0` because newer Wrangler releases pull `workerd`, which does not currently ship a Windows ARM64 package. Local maintenance commands should use the project-local binary if the global shim is broken:
+`workerd` ships no Windows ARM64 binary; the README section "Setup On Windows ARM64" covers the x64 emulation setup. Local maintenance commands should use the project-local binary if the global shim is broken:
 
 ```powershell
 .\node_modules\.bin\wrangler.cmd <command>
